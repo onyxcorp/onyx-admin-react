@@ -1,0 +1,463 @@
+# REUSABLE BOOLEAN FUNCTIONS
+functions:
+  - isLoggedIn():      auth !== null
+  - isRole(roleName):  root['roles'][auth.uid][roleName] === true       # default Role
+  - isAdmin():         isLoggedIn() && isRole('admin')                  # supreme role
+  - isAnonymous():     isLoggedIn() && auth.provider === 'anonymous'    # check if the current user is anonymous
+  - isUser():          isLoggedIn() && auth.provider !== 'anonymous'    # check if the current user is logged in and not anoymous
+  - isOwner():         isLoggedIn() && prev.uid === auth.uid    # check owner by resource child value, the old uid should match the current logged in uid
+  - isOwnerPath(uid):  isLoggedIn() && uid === auth.uid         # check owner by resource path
+  - createOnly():      next.exists() && !prev.exists()  # new data exists but no previous one
+  - deleteOnly():      prev.exists() && !next.exists()  # data exists but no new one
+  - updateOnly():      prev.exists() && next.exists()   # new data overriding old data
+  - createOrDelete():  createOnly() || deleteOnly()     # data that can be created or deleted but not modified
+  - createOrUpdate():  createOnly() || updateOnly()      # data that can be craeted or updated only
+  - notEmpty():        next.val().length >= 1           # not used for now..
+
+schema:
+  definitions:   #create a reusable schema models
+
+    # REUSABLE SCHEMA MODELS
+    userAddress:
+      type: object
+      properties:
+        name:
+          type: string
+        cep:
+          type: string
+        state:
+          type: string
+        city:
+          type: string
+        street:
+          type: string
+        createdDate:
+          type: string
+          constraint: createOnly()
+      required: [name, cep, state, city, street]
+      additionalProperties: false
+      examples:
+        - {name: "Casa", cep: "13211-745", state: "SP", city: "Jundiai", street: "Rua do Retiro"}   # valid data
+      nonexamples:
+        - {cep: "13211-745", state: "SP", city: "Jundiai", street: "Rua do Retiro"}              # missing name
+        - {name: "Casa", state: "SP", city: "Jundiai", street: "Rua do Retiro"}                  # missing cep
+        - {name: "Casa", cep: 13211745, state: "SP", city: "Jundiai", street: "Rua do Retiro"}   # wrong type for cep (should be string)
+
+    cart:
+      type: object
+      constraint: createOrUpdate()     # user can craete or update but not delete the order
+      properties:
+        address:
+          type: object
+          $address: {$ref: "#/definitions/userAddress"}
+        products:
+          type: object
+          $product: {$ref: "#/definitions/product"}
+        total:
+          type: number
+        uid:
+          type: string
+        createdDate:
+          type: string
+          constraint: createOnly()
+      required: [products, total, uid]
+      additionalProperties: false            # prevent spurious data being part of a order
+      examples:
+        - {products: {}, total: 30.56, uid: "facebook:10152951816780365"}   # valid data
+      nonexamples:
+        - {products: {}, total: "30.56", uid: "facebook:10152951816780365"} # total should be number
+        - {products: true, total: 30.56, uid: "facebook:10152951816780365"} # products should be object
+        - {products: true, total: 30.56} # user is missing
+
+    contact:
+      type: object
+      constraint: createOnly()
+      properties:
+        name:
+          type: string
+          constraint: createOnly()
+        email:
+          type: string
+          constraint: createOnly()
+        description:
+          type: string
+          constraint: createOnly()
+        createdDate:
+          type: string
+          constraint: createOnly()
+      required: [name, email, description]
+      additionalProperties: false
+      examples:
+        - {name: "fabio", email: "fabioazm@gmail.com", description: "some valid contact description"}   # valid data
+      nonexamples:
+        - { name: "fabio", description: "some valid contact description" }                  # email is missing
+        - { email: "fabioazm@gmail.com", description: "some valid contact description" }    # name is missing
+
+    post:               # post have no #constraint
+      type: object
+      constraint: createOrUpdate()
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        content:
+          type: string
+        type:
+          type: string
+        createdDate:
+          type: string
+          constraint: createOnly()
+      required: [title, slug, content, type]
+      additionalProperties: false
+      examples:
+        - { title: "valid title", slug: "valid-slug", content: "some valid post description", type: "blogs"}
+      nonexamples:
+        - { title: "valid title", content: "some valid post description", type: "blogs" }       # slug is missing
+        - { title: "valid title", slug: "valid-slug", type: "blogs"}                            # content is missing
+        - { title: "valid title", slug: "valid-slug", content: "some valid post description" }  # type is missing
+
+    mail:
+      type: object
+      constraint: createOnly()
+      properties:
+        from:
+          type: string
+        to:
+          type: string
+      required: [from, to]
+      additionalProperties: false
+      examples:
+        - {from: "João <fabiozaffani@hotmail.com>", to: "Fabio <fabiozaffani@gmail.com>"}
+      nonexamples:
+        - {from: "João <fabiozaffani@hotmail.com>"}           # "to" is missing
+        - {from: 123, to: "Fabio <fabiozaffani@gmail.com>"}   # "from" is not a string
+
+    user:
+      type: object
+      constraint: createOrUpdate()  # users should not be deleted
+      properties:
+        addresses:
+          type: object
+          properties:
+            $userAddress: {$ref: "#/definitions/userAddress"}
+        avatar:
+          type: string
+        bDay:
+          type: string
+        email:
+          type: string
+        gender:
+          type: string
+        lastName:
+          type: string
+        name:
+          type: string
+        provider:
+          type: string
+        rg:
+          type: string
+        cpf:
+          type: string
+        lists:
+          type: object
+          properties:
+            $listName:
+              type: object
+              properties:
+                $productId: {$ref: "#/definitions/product"}
+        createdDate:
+          type: string
+          constraint: createOnly()
+      required: [email, name, gender, provider]
+      additionalProperties: false
+      examples:
+        - { name: 'fabio', email: 'fabio@gmail.com', gender: 'male', provider: 'password' }
+      nonexamples:
+        - { name: 0, email: 'fabio@gmail.com', gender: 'male', provider: 'password' }  # wrong name type
+        - { name: 'fabio', email: 'fabio@gmail.com', gender: 'male' }                  # no provider
+
+    image:
+      type: object
+      properties:
+        src:
+          type: string
+      required: [src]
+      additionalProperties: false
+      examples:
+        - { src: 'http://res.cloudinary.com/onyx/image/upload/v1439311456/qmvopmec3qzcce67yyry.jpg' }
+      nonexamples:
+        - { src: false }   #wrong data type
+
+    product:
+      type: object
+      constraint: createOrUpdate()  # products should not be deleted
+      properties:
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        images:
+          type: object
+          $image: {$ref: "#/definitions/image"}
+        quantity:
+          type: number
+        price:
+          type: number
+        total:
+          type: number
+        weight:                     # peso (correios)
+          type: number
+        width:                      # largura (correios)
+          type: number
+        height:                     # altura (correios)
+          type: number
+        depth:                      # profundidade (correios)
+          type: number
+        createdDate:
+          type: string
+          constraint: createOnly()
+      required: [title, slug, description, quantity, price]
+      additionalProperties: false
+      examples:
+        - { title: "valid title", slug: "valid-slug", description: "some valid product description", quantity: 1, price: 1.99 }
+      nonexamples:
+        - { title: "", description: "dabadee dabada", quantity: 1, price: 1.99 } # slug is missing
+        - { slug: "", description: "dabadee dabada", quantity: 1, price: 1.99 } # title is missing
+
+    order:
+      type: object
+      constraint: createOrUpdate()     # user can craete or update but not delete the order
+      properties:
+        address:
+          type: object
+          $address: {$ref: "#/definitions/userAddress"}
+        products:
+          type: object
+          constraint: createOnly()
+          $product: {$ref: "#/definitions/product"}
+        status:
+          type: string
+        total:
+          type: number
+          constraint: createOnly()
+        uid:
+          type: string
+          constraint: createOnly()
+        createdDate:
+          type: string
+          constraint: createOnly()
+      required: [products, total, uid, status]          # all orders require all fields to be defined
+      additionalProperties: false                       # prevent spurious data being part of a order
+      examples:
+        - {products: {}, total: 30.56, status: "payment", uid: "facebook:10152951816780365"}
+      nonexamples:
+        - {products: {}, total: "30.56", status: "completed", uid: "facebook:10152951816780365"}    # total should be float
+        - {products: true, total: 30.56, status: "payment", uid: "facebook:10152951816780365"}      # products should be object
+        - {products: {}, status: "completed", total: 30.56}                                         # user is missing
+
+    review:
+      type: object
+      constraint: createOrUpdate()
+      properties:
+        title:
+          type: string
+          constraint: createOnly()
+        description:
+          type: string
+          constraint: createOnly()
+        product_id:
+          type: string
+          constraint: createOnly()
+        uid:
+          type: string
+          constraint: createOnly()
+        score:
+          type: number
+        createdDate:
+          type: string
+          constraint: createOnly()
+      required: [title, description, product_id, uid, score]
+      additionalProperties: false   # prevent spurious data being part of a review
+      examples:
+        - {title: "Review produto title", description: "Review produto description", product_id: "-3pio90asdh12nb", uid: "simple94:-JouU2zky90T1-wJf4IV", score: 5}
+      nonexamples:
+        - {title: "Review produto title", description: "Review produto description", product_id: 15, score: 5, }   # missing user
+        - {title: "Review produto title", description: "Review produto description", product_id: "-3pio90asdh12nb", uid: "simple92:-JouU2zky90T1-wJf4IV" }  # missing score
+        - {title: "Review produto title", product_id: "-3pio90asdh12nb", uid: "facebook120:-JouU2zky90T1-wJf4IV", score: 5"}                                # missing description
+
+    role:
+      type: object
+      constraint: createOrUpdate()
+      properties:
+        admin:
+          type: boolean
+        editor:
+          type: boolean
+      additionalProperties: false
+      examples:
+        - {editor: true}            # valid data
+        - {admin: true}
+      nonexamples:
+        - {editor: "verdadeiro"}    # value should be a boolean
+        - {admin: "falso"}          # value should be a boolean
+
+
+# BASE DATABASE STRUCTURE
+
+  type: object
+  properties:
+    users:
+      type: object
+      indexOn: [bDay, gender, provider]
+      $userid: {$ref: "#/definitions/user"}
+    posts:
+      type: object
+      indexOn: [slug, type]
+      $postid: {$ref: "#/definitions/post"}
+    carts:
+      type: object
+      indexOn: [status]
+      $userid: {$ref: "#/definitions/cart"}
+    contacts:
+      type: object
+      indexOn: [email]
+      $contactid: {$ref: "#/definitions/contact"}
+    orders:
+      type: object
+      indexOn: [uid, status, total]
+      $orderid: {$ref: "#/definitions/order"}
+    products:
+      type: object
+      indexOn: [slug]
+      $productid: {$ref: "#/definitions/product"}
+    reviews:
+      type: object
+      indexOn: [product_id, uid]
+      $reviewid: {$ref: "#/definitions/review"}
+    roles:
+      type: object
+      $userid: {$ref: "#/definitions/role"}
+    mail:
+      type: object
+      properties:
+        request:
+          type: object
+          $mailid: {$ref: "#/definitions/mail"}
+          additionalProperties: false
+        response:
+          type: object
+          $mailid:
+            type: object
+            properties:
+              uid:
+                type: string        # user who solicited the email to be sent
+              response:
+                type: string        # sucesso, falha ?
+            additionalProperties: false
+      additionalProperties: false
+  additionalProperties: false   # only the main tables above are allowed
+
+
+
+# ACCESS DEALS WITH THE PERMISSIONS TO READ OR WRITE DATA TO THE SPECIFIED LOCATION
+
+access:
+  # MAIN RULES
+  - location: /
+    read: false      # by default make everything non readable
+    write: false     # by default make everything non writable
+
+  - location: carts/
+    read: false             # carts are non readable by default
+    write: false            # carts are non writable by default
+  - location: carts/$userid/
+    read: isOwnerPath($userid) || isAdmin()    # cart owner and admin can read the cart
+    write: isOwnerPath($userid) || isAdmin()   # cart owner and admin can write to cart
+
+  - location: contacts/
+    read: false             # contacts are non readable by default
+    write: false            # contacts are non writable by default
+  - location: contacts/$contactid/
+    read: isOwnerPath($contactid) || isAdmin()    # contacts owner and admin can read the contact
+    write: isOwnerPath($contactid) || isAdmin()   # contacts owner and admin can write to contact
+
+  - location: posts/
+    read: true
+    write: false
+  - location: posts/$postid
+    read: true
+    write: isAdmin()
+
+  - location: products/
+    read: true      # everybody can read products
+    write: false
+  - location: products/$productid
+    read: true             # everybody can read products
+    write: isAdmin()        # only high level users can write on products
+
+  - location: reviews/
+    read: true              # everybody can read any review
+    write: false
+  - location: reviews/$reviewid
+    read: true          # everybody can read any review
+    write: isOwner()    # only logged in users (not anonymous) can write a review
+
+  - location: orders/
+    read: false            # orders are non readable by default
+    write: false
+  - location: orders/$orderid/
+    read: isOwner() || isAdmin()        # order owner and admin can read the order (owner checked throught uid child value)
+    write: isOwner() || isAdmin()       # order owner and admin can write to order (owner checked throught uid child value)
+
+  - location: users/
+    read: false        # users are non readable by default
+    write: false
+  - location: users/$userid/
+    read: isOwnerPath($userid) || isAdmin()     # user and admin can see their own data
+    write: isOwnerPath($userid) || isAdmin()    # user and admin can write to their own data
+  - location: user/$userid/lists/
+    read: true                              # everybody can read any user created list
+    write: isOwnerPath($userid)             # only the owner can write/update to it's list
+
+  - location: roles/
+    read: false
+    write: false
+  - location: roles/$userid/
+    read: isOwnerPath($userid) || isAdmin()
+    write: isAdmin()
+
+  # TABLES THAT SERVICES WILL BE LISTENING TO
+  # search (read and write)
+  - location: search/               # search
+    read: false                     # non readable
+    write: false                    # non writable
+  - location: search/request/
+    read: false                    # non readable
+    write: isLoggedIn()            # search can be written by logged in users only
+  - location: search/response/
+    read: auth.uid === prev.id     # search owner can read the response
+    write: false                   # non writable (only the DYNO service will write here)
+
+  - location: mail/                 # mail
+    read: false                     # non readable
+    write: false                    # non writable
+  - location: mail/request/
+    read: false                    # non readable
+    write: isLoggedIn()            # only logged users can write here
+  - location: mail/response/
+    read: isOwner()                # only the owner can read the response
+    write: false                   # non writable
+
+  # correio (read and write)
+  - location: shipping/             # shipping
+    read: false                     # non readable
+    write: false                    # non writable
+  - location: shipping/request/
+    read: false                    # non readable
+    write: isLoggedIn()            # only logged users can write here
+  - location: shipping/response/
+    read: isOwner()                # shipping owner can read the response
+    write: false                   # non writable

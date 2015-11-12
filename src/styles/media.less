@@ -1,0 +1,24 @@
+@import url('./variables.less');
+
+////////// Phone //////////
+@media (max-width: @grid-tablet-breakpoint - 1) {
+    .hide-phone {
+        display: none !important;
+    }
+}
+
+
+////////// Tablet //////////
+@media (min-width: @grid-tablet-breakpoint) and (max-width: @grid-desktop-breakpoint - 1) {
+    .hide-tablet {
+        display: none !important;
+    }
+}
+
+
+////////// Desktop //////////
+@media (min-width: @grid-desktop-breakpoint) {
+    .hide-desktop {
+        display: none !important;
+    }
+}

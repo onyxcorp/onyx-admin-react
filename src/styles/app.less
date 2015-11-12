@@ -1,0 +1,333 @@
+@import url(https://fonts.googleapis.com/css?family=Roboto:300,400,500);
+@import url('./vendors/animate.min.css');
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, menu, nav, section, main {
+  display: block;
+}
+
+a{
+  text-decoration: none;
+}
+
+em {
+  font: inherit;
+  vertical-align: baseline;
+}
+
+ol, ul {
+  list-style: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+*, *::after, *::before {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: #f2f2f2;
+}
+html, body, div, a, span, p, li{
+  font-family: 'Roboto', sans-serif;
+}
+
+p, li{
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: .1px;
+  font-weight: 400;
+  line-height: 26px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+}
+
+/*****************************Layout Start *********************/
+
+body {
+  color: #767777 !important;
+  overflow: hidden;
+  background-color: #f2f2f2;
+}
+
+h3{
+  font-size: 21px!important;
+}
+
+h1{
+  margin-top: 0!important;
+}
+
+
+#main {
+  background-color: #f2f2f2;
+}
+
+.mdl-layout__content, .container{
+  height: 100%!important;
+}
+
+.mdl-button--raised.mdl-button--colored {
+  color: white!important;
+}
+
+.app--footer {
+  margin-top: 50px;
+}
+
+.app--footer-content {
+  padding-top: 10px;
+  text-align: center;
+}
+
+.socialIcon {
+  color: white;
+  font-size: 21px;
+  vertical-align: middle;
+}
+
+.cartProductColItem{
+  margin-top: 9px!important;
+  display: block;
+}
+
+
+.paperContent{
+  margin-top: -25px;
+  z-index: 2;
+  width: 100%;
+  display: block;
+}
+
+/*****************************Layout End *********************/
+
+/*****************************Tools and Hacks Start *********************/
+
+.isFullWidth{
+  width: 100%;
+}
+
+.clickable{
+  cursor: pointer!important;
+}
+
+.thumbnail{
+  border: none!important;
+}
+
+.admin-load-more{
+  text-align: center;
+}
+
+.fontIcon{
+  color: white!important;
+}
+
+.ReactModalPortal{
+    z-index: 99;
+    position: absolute;
+}
+
+/*****************************Tools and Hacks End *********************/
+
+/*****************************Page Title Start *********************/
+.page-title-wrapper {
+  margin-top: -21px;
+  width: 100%;
+  background: #8bc435;
+  color: white;
+  padding-bottom: 21px;
+  z-index: 1;
+}
+
+.page-title {
+  width: 100%;
+  margin: 0;
+  text-transform: uppercase;
+}
+.page-title h4 {
+  margin-top: 0px;
+}
+ul.breadcrumbs {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+ul.breadcrumbs {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  margin-top: -27px;
+}
+ul.breadcrumbs li {
+  float: left;
+  display: block;
+  color: #fff;
+  font-size: 11px;
+  padding: 0px 8px;
+  text-decoration: none;
+  position: relative;
+}
+ul.breadcrumbs li:first-child {
+  padding-left: 0px;
+}
+ul.breadcrumbs li a {
+  display: block;
+  color: #fff;
+  font-size: 11px;
+  text-decoration: none;
+  position: relative;
+}
+ul.breadcrumbs li a:hover {
+  color: #fff;
+}
+ul.breadcrumbs li:first-child a {
+  padding-left: 0px;
+}
+ul.breadcrumbs li:after {
+  content: ">";
+  position: absolute;
+  right: -1px;
+  top: 0px;
+}
+ul.breadcrumbs li:last-child:after {
+  display: none;
+}
+/******************************Page Title End ************************/
+
+/******************************Header Start ************************/
+
+.impallets-header {
+  overflow: visible;
+  background-color: white;
+}
+
+.impallets-header .material-icons {
+  color: #767777 !important;
+}
+
+.impallets-header .mdl-layout__drawer-button {
+  background: transparent;
+  color: #767777;
+}
+
+.impallets-header .mdl-navigation__link {
+  color: #757575!important;
+  font-weight: 700;
+  font-size: 14px;
+}
+/******************************Header End ************************/
+
+/******************************Nav Start ************************/
+
+.impallets-navigation-container {
+  /* Simple hack to make the overflow happen to the left instead... */
+  direction: rtl;
+  -webkit-box-ordinal-group: 2;
+  -webkit-order: 1;
+  -ms-flex-order: 1;
+  order: 1;
+  width: 500px;
+  -webkit-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+  width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.impallets-navigation {
+  /* ... and now make sure the content is actually LTR */
+  direction: ltr;
+  -webkit-box-pack: end;
+  -webkit-justify-content: flex-end;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  width: 800px;
+}
+
+.impallets-search-box.is-focused ~ .impallets-navigation-container {
+  opacity: 0;
+  width: 100px;
+}
+
+
+.impallets-navigation .mdl-navigation__link {
+  display: inline-block;
+  line-height: 68px;
+  background-color: transparent !important;
+  border-bottom: 4px solid transparent;
+  text-transform: uppercase;
+  height: 100%;
+}
+
+.impallets-navigation .mdl-navigation__link.active {
+  text-decoration: none;
+  border-bottom: 4px solid #8bc34a;
+}
+
+.impallets-navigation .mdl-navigation__link:hover {
+  text-decoration: none;
+  border-bottom: 4px solid #8bc34a;
+}
+
+.impallets-search-box {
+  -webkit-box-ordinal-group: 3;
+  -webkit-order: 2;
+  -ms-flex-order: 2;
+  order: 2;
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+.impallets-more-button {
+  -webkit-box-ordinal-group: 4;
+  -webkit-order: 3;
+  -ms-flex-order: 3;
+  order: 3;
+}
+
+.impallets-mobile-title{
+  display: none!important;
+}
+
+.mdl-layout__content{
+  padding-top: 21px;
+}
+
+/**** Mobile layout ****/
+@media (max-width: 900px) {
+  .impallets-navigation-container {
+    display: none;
+  }
+
+  .impallets-title {
+    display: none !important;
+  }
+
+  .impallets-mobile-title {
+    display: block !important;
+    margin: 0 auto;
+    left: calc(50% - 10px);
+    position: absolute!important;
+    top: 2px;
+    -webkit-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+}
+
+@media (max-width: 500px) {
+  .impallets-mobile-title {
+    display: block !important;
+    margin: 0 auto;
+    left: calc(50% - 25px);
+    position: absolute !important;
+    top: 2px;
+    -webkit-transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+/******************************Nav End ************************/

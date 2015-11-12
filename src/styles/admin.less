@@ -1,0 +1,105 @@
+.admin-header-wrapper {
+    min-height: 40px;
+    margin-bottom: 25px;
+}
+
+#admin-playerName{
+  line-height: 50px !important;
+  display: block;
+}
+
+.f-no-select {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.m-tree {
+  position: relative;
+  overflow: hidden;
+  .f-no-select;
+}
+
+.m-draggable {
+  position: absolute;
+  opacity: 0.8;
+  .f-no-select;
+}
+
+.m-node {
+  &.placeholder > * {
+    visibility: hidden;
+  }
+
+  &.placeholder {
+    border: 1px dashed #ccc;
+  }
+
+  .inner {
+    position: relative;
+    cursor: pointer;
+    padding-left: 10px;
+  }
+
+  .collapse {
+    position: absolute;
+    left: 0;
+    cursor: pointer;
+  }
+
+  .caret-right:before {
+    content: '\25B8';
+  }
+
+  .caret-down:before {
+    content: '\25BE';
+  }
+}
+
+.tree {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.m-node {
+  &.placeholder {
+    border: 1px dashed #1385e5;
+  }
+
+  .inner {
+    color: #9DA5B4;
+    font-size: 12px;
+  }
+
+  .node {
+    display: inline-block;
+    width: 100%;
+    padding: 4px 5px;
+
+    &.is-active {
+      background-color: #31363F;
+    }
+  }
+}
+span.node .exclude{
+  margin-left: 10px;
+  opacity: 0;
+  z-index: 999;
+  position: absolute;
+
+}
+span.node:hover .exclude{
+  opacity: 1;
+  color: rgba(210, 39, 39, 0.2);
+}
+
+span.node .exclude:hover{
+  color: rgba(210, 39, 39, 1);
+}
+
+.tree .m-tree .m-node div:nth-of-type(1) span:nth-of-type(2) .exclude{
+  margin-left: 10px;
+  display: none;
+}
